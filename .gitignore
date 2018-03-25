@@ -39,3 +39,9 @@ dist/**/*
 
 # Ignore output from coverage report
 coverage
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless

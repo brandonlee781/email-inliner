@@ -12,42 +12,69 @@ type Next = express.NextFunction;
 
 export class InlinerController implements RegistrableController {
   public register(app: express.Application): void {
-    app.route('/').get(this.getIndex.bind(this));
+    app.route('/')
+      .get(this.getIndex.bind(this))
+      .post(this.postIndex.bind(this));
   }
 
-  private async getIndex(req: Req, res: Res, next: Next) {
+  public async getIndex(url: string): Promise<{ html?: string; error?: string; }> {
     try {
-      const url = req.query.url;
       const { data } = await axios.get(url);
       const $ = cheerio.load(data);
       const styles = await this.getStyles($);
 
       $('script, noscript, link').remove();
       juice.inlineDocument($, styles);
+      const minified = this.minifyHtml($);
 
-      res.send(minify($.html(), {
-        collapseWhitespace: true,
-        removeComments: true,
-        minifyCSS: true,
-      }));
+      return { html: minified };
+    } catch (err) {
+      logger.error(err);
+      return { error: err.message };
+    }
+  }
+
+  private async postIndex(req: Req, res: Res, next: Next): Promise<void> {
+    try{
+      const html: string = req.body.html;
+      const $ = cheerio.load(html);
+      const styles = await this.getStyles($);
+  
+      $('script, noscript, link').remove();
+      juice.inlineDocument($, styles);
+      const minified = this.minifyHtml($);
+  
+      res.send(minified);
     } catch (err) {
       logger.error(err);
       res.json(err.message);
     }
   }
 
-  private async getStyles($: CheerioStatic) {
-    const linkTags: Cheerio = $('head').find('link[rel=stylesheet]').not((i, el) => {
-      const href = $(el).attr('href');
-      return href.includes('fonts.googleapis.com');
-    });
-    const promises: AxiosPromise[] = [];
-    linkTags.each((ind, ele) => {
-      const href = $(ele).attr('href');
-      promises.push(axios.get(href));
-    });
+  private async getStyles($: CheerioStatic): Promise<string> {
+    try {
+      const linkTags: Cheerio = $('head').find('link[rel=stylesheet]').not((i, el) => {
+        const href = $(el).attr('href');
+        return href.includes('fonts.googleapis.com');
+      });
+      const promises: AxiosPromise[] = [];
+      linkTags.each((ind, ele) => {
+        const href = $(ele).attr('href');
+        promises.push(axios.get(href));
+      });
+  
+      const stylesheets = await Promise.all(promises);
+      return stylesheets.map(s => s.data).reduce((a, b) => a.concat(b));
+    } catch (err) {
+      throw err;
+    }
+  }
 
-    const stylesheets = await Promise.all(promises);
-    return stylesheets.map(s => s.data).reduce((a, b) => a.concat(b));
+  private minifyHtml($: CheerioStatic): string {
+    return minify($.html(), {
+      collapseWhitespace: true,
+      removeComments: true,
+      minifyCSS: true,
+    });
   }
 }
