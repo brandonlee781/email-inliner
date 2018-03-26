@@ -17,12 +17,7 @@ const juice_1 = __importDefault(require("juice"));
 const html_minifier_1 = require("html-minifier");
 const Logger_1 = require("../util/Logger");
 class InlinerController {
-    register(app) {
-        app.route('/')
-            .get(this.getIndex.bind(this))
-            .post(this.postIndex.bind(this));
-    }
-    getIndex(url) {
+    fromUrl(url) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { data } = yield axios_1.default.get(url);
@@ -31,28 +26,27 @@ class InlinerController {
                 $('script, noscript, link').remove();
                 juice_1.default.inlineDocument($, styles);
                 const minified = this.minifyHtml($);
-                return { html: minified };
+                return minified;
             }
             catch (err) {
                 Logger_1.logger.error(err);
-                return { error: err.message };
+                throw err;
             }
         });
     }
-    postIndex(req, res, next) {
+    fromHtml(html) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const html = req.body.html;
                 const $ = cheerio_1.default.load(html);
                 const styles = yield this.getStyles($);
                 $('script, noscript, link').remove();
                 juice_1.default.inlineDocument($, styles);
                 const minified = this.minifyHtml($);
-                res.send(minified);
+                return minified;
             }
             catch (err) {
                 Logger_1.logger.error(err);
-                res.json(err.message);
+                throw err;
             }
         });
     }
@@ -69,7 +63,7 @@ class InlinerController {
                     promises.push(axios_1.default.get(href));
                 });
                 const stylesheets = yield Promise.all(promises);
-                return stylesheets.map(s => s.data).reduce((a, b) => a.concat(b));
+                return stylesheets.map(s => s.data).reduce((a, b) => a.concat(b), '');
             }
             catch (err) {
                 throw err;
@@ -77,11 +71,16 @@ class InlinerController {
         });
     }
     minifyHtml($) {
-        return html_minifier_1.minify($.html(), {
-            collapseWhitespace: true,
-            removeComments: true,
-            minifyCSS: true,
-        });
+        try {
+            return html_minifier_1.minify($.html(), {
+                collapseWhitespace: true,
+                removeComments: true,
+                minifyCSS: true,
+            });
+        }
+        catch (err) {
+            throw err;
+        }
     }
 }
 exports.InlinerController = InlinerController;

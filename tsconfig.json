@@ -13,7 +13,12 @@
               "node_modules/*",
               "src/types/*"
           ]
-      }
+      },
+      "lib": [
+          "esnext",
+          "esnext.asynciterable",
+          "dom"
+      ]
   },
   "include": [
       "src/**/*"

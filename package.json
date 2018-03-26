@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
-    "start": "nodemon",
+    "start": "serverless offline start",
+    "deploy": "serverless deploy -v",
     "build": "tsc",
-    "prod": "node dist/main.js",
     "test": "jest"
   },
   "keywords": [],
@@ -15,24 +15,19 @@
   "license": "ISC",
   "devDependencies": {
     "@types/cheerio": "^0.22.7",
-    "@types/express": "^4.11.1",
     "@types/html-minifier": "^3.5.2",
     "@types/jest": "^22.2.2",
     "@types/node": "^9.6.0",
+    "@types/winston": "^2.3.8",
     "jest": "^22.4.3",
-    "nodemon": "^1.17.2",
     "serverless-offline": "^3.18.0",
     "serverless-plugin-typescript": "^1.1.5",
-    "ts-node": "^5.0.1",
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "@types/winston": "^2.3.8",
     "axios": "^0.18.0",
-    "body-parser": "^1.18.2",
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^5.0.1",
-    "express": "^4.16.3",
     "html-minifier": "^3.5.12",
     "juice": "^4.2.3",
     "serverless": "^1.26.1",

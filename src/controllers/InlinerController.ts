@@ -1,23 +1,11 @@
-import express from 'express';
-import { RegistrableController } from './RegisterableController';
 import axios, { AxiosPromise } from 'axios';
 import cheerio from 'cheerio';
 import juice from 'juice';
 import { minify } from 'html-minifier';
 import { logger } from '../util/Logger';
 
-type Res = express.Response;
-type Req = express.Request;
-type Next = express.NextFunction;
-
-export class InlinerController implements RegistrableController {
-  public register(app: express.Application): void {
-    app.route('/')
-      .get(this.getIndex.bind(this))
-      .post(this.postIndex.bind(this));
-  }
-
-  public async getIndex(url: string): Promise<{ html?: string; error?: string; }> {
+export class InlinerController {
+  public async fromUrl(url: string): Promise<string> {
     try {
       const { data } = await axios.get(url);
       const $ = cheerio.load(data);
@@ -27,27 +15,26 @@ export class InlinerController implements RegistrableController {
       juice.inlineDocument($, styles);
       const minified = this.minifyHtml($);
 
-      return { html: minified };
+      return minified;
     } catch (err) {
       logger.error(err);
-      return { error: err.message };
+      throw err;
     }
   }
 
-  private async postIndex(req: Req, res: Res, next: Next): Promise<void> {
+  public async fromHtml(html: string): Promise<string> {
     try{
-      const html: string = req.body.html;
       const $ = cheerio.load(html);
       const styles = await this.getStyles($);
-  
+
       $('script, noscript, link').remove();
       juice.inlineDocument($, styles);
       const minified = this.minifyHtml($);
-  
-      res.send(minified);
+
+      return minified;
     } catch (err) {
       logger.error(err);
-      res.json(err.message);
+      throw err;
     }
   }
 
@@ -62,19 +49,23 @@ export class InlinerController implements RegistrableController {
         const href = $(ele).attr('href');
         promises.push(axios.get(href));
       });
-  
+
       const stylesheets = await Promise.all(promises);
-      return stylesheets.map(s => s.data).reduce((a, b) => a.concat(b));
+      return stylesheets.map(s => s.data).reduce((a, b) => a.concat(b), '');
     } catch (err) {
       throw err;
     }
   }
 
   private minifyHtml($: CheerioStatic): string {
-    return minify($.html(), {
-      collapseWhitespace: true,
-      removeComments: true,
-      minifyCSS: true,
-    });
+    try {
+      return minify($.html(), {
+        collapseWhitespace: true,
+        removeComments: true,
+        minifyCSS: true,
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 }
