@@ -25,6 +25,11 @@ plugins:
   - serverless-plugin-typescript
   - serverless-offline
 
+package:
+  exclude:
+    - .git/**
+    - tests/**
+
 functions:
   urlInliner:
     handler: src/handler.urlInliner
