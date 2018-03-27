@@ -29,6 +29,7 @@ package:
   exclude:
     - .git/**
     - tests/**
+    - '**/*.test.ts'
 
 functions:
   urlInliner:
