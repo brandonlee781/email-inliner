@@ -1,6 +1,14 @@
 import { ResponsePayload, EventPayload, Callback, ContextPayload } from './types';
 import { InlinerController } from './controllers/InlinerController';
 
+/**
+ * Takes a URL to a website and returns that site's html with inlined css and minified.
+ * @param {EventPayload} event Response event that triggers the running of this function
+ * @param {ContextPayload} context All variables surrounding the execution of this function
+ * @param {Callback} callback - Callback function to end the executions of this function
+ * takes two parameters, an optional error and 'stringifiable' response
+ * @returns {ResponsePayload}
+ */
 export async function urlInliner(event: EventPayload, context: ContextPayload, callback: Callback): Promise<void> {
   try {
     const url = event.queryStringParameters.url;
@@ -15,6 +23,14 @@ export async function urlInliner(event: EventPayload, context: ContextPayload, c
   }
 }
 
+/**
+ * Takes a HTML string, inlines CSS, minfies it and returns it.
+ * @param {EventPayload} event Response event that triggers the running of this function
+ * @param {ContextPayload} context All variables surrounding the execution of this function
+ * @param {Callback} callback - Callback function to end the executions of this function
+ * takes two parameters, an optional error and 'stringifiable' response
+ * @returns {ResponsePayload}
+ */
 export async function htmlInliner(event: EventPayload, context: ContextPayload, callback: Callback): Promise<void> {
   try {
     const contentType = event.headers['Content-Type'];
@@ -37,6 +53,13 @@ export async function htmlInliner(event: EventPayload, context: ContextPayload, 
   }
 }
 
+/**
+ * Creates a response object with the HTTP status code and response object
+ * @private
+ * @param {number} status - Response Status Code
+ * @param {any} body - Stringifiable response
+ * @returns {ResponsePayload}
+ */
 function createResponse(status: number, body: any): ResponsePayload {
   return {
     headers: {
