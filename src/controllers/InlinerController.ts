@@ -41,10 +41,15 @@ export class InlinerController {
   public async fromHtml(html: string): Promise<string> {
     try{
       const $ = cheerio.load(html);
-      const styles = await this.getStyles($);
+      let styles = await this.getStyles($);
+      const styleEles = $('style');
+      styleEles.each((ind, el) => {
+        styles += $(el).html();
+      });
 
       $('script, noscript, link').remove();
       juice.inlineDocument($, styles);
+      $('head').append('<style>@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);</style>');
       const minified = this.minifyHtml($);
 
       return minified;
