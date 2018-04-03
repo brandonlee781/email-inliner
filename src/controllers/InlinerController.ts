@@ -20,6 +20,7 @@ export class InlinerController {
       const { data } = await axios.get(url);
       const $ = cheerio.load(data);
       const styles = await this.getStyles($);
+      $('head').append(`<style>${styles}</style>`);
 
       $('script, noscript, link').remove();
       juice.juiceDocument($, { removeStyleTags: true });
@@ -41,6 +42,8 @@ export class InlinerController {
   public async fromHtml(html: string): Promise<string> {
     try{
       const $ = cheerio.load(html);
+      const styles = await this.getStyles($);
+      $('head').append(`<style>${styles}</style>`);
 
       $('script, noscript, link').remove();
       juice.juiceDocument($, { removeStyleTags: true });
