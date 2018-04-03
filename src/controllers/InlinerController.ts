@@ -95,6 +95,7 @@ export class InlinerController {
         collapseWhitespace: true,
         removeComments: true,
         minifyCSS: true,
+        decodeEntities: true,
       });
     } catch (err) {
       throw err;
