@@ -64,8 +64,9 @@ function createResponse(status: number, body: any): ResponsePayload {
   return {
     headers: {
       'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials' : true,
     },
     statusCode: status,
-    body,
+    body: JSON.stringify(body),
   };
 }
