@@ -23,7 +23,8 @@ export class InlinerController {
       $('head').append(`<style>${styles}</style>`);
 
       $('script, noscript, link').remove();
-      juice.juiceDocument($, { removeStyleTags: true });
+      juice.juiceDocument($, { removeStyleTags: true, preserveFontFaces: true });
+      $('head').append('<style>@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);</style>');
       const minified = this.minifyHtml($);
 
       return minified;
@@ -46,7 +47,7 @@ export class InlinerController {
       $('head').append(`<style>${styles}</style>`);
 
       $('script, noscript, link').remove();
-      juice.juiceDocument($, { removeStyleTags: true });
+      juice.juiceDocument($, { removeStyleTags: true, preserveFontFaces: true });
       $('head').append('<style>@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);</style>');
       const minified = this.minifyHtml($);
 
