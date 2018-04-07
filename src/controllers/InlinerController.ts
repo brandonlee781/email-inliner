@@ -21,13 +21,9 @@ export class InlinerController {
       const $ = cheerio.load(data);
       const styles = await this.getStyles($);
       $('head').append(`<style>${styles}</style>`);
+      const doc = this.juiceDoc($);
 
-      $('script, noscript, link').remove();
-      juice.juiceDocument($, { removeStyleTags: true, preserveFontFaces: true });
-      $('head').append('<style>@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);</style>');
-      const minified = this.minifyHtml($);
-
-      return minified;
+      return doc;
     } catch (err) {
       throw err;
     }
@@ -45,13 +41,9 @@ export class InlinerController {
       const $ = cheerio.load(html);
       const styles = await this.getStyles($);
       $('head').append(`<style>${styles}</style>`);
+      const doc = this.juiceDoc($);
 
-      $('script, noscript, link').remove();
-      juice.juiceDocument($, { removeStyleTags: true, preserveFontFaces: true });
-      $('head').append('<style>@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);</style>');
-      const minified = this.minifyHtml($);
-
-      return minified;
+      return doc;
     } catch (err) {
       throw err;
     }
@@ -97,7 +89,25 @@ export class InlinerController {
         removeComments: true,
         minifyCSS: true,
         decodeEntities: true,
-      });
+      }).replace(/\r?\n|\r/g, '');
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   * Takes a cheerio instances and returns minified html with inlined css
+   * @private
+   * @param $ - Static Cheerio HTML instance
+   * @returns { string }
+   */
+  private juiceDoc($: CheerioStatic): string {
+    try {
+      $('script, noscript, link').remove();
+      juice.juiceDocument($, { removeStyleTags: true, preserveFontFaces: true });
+      $('head').append('<style>@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);</style>');
+      const minified = this.minifyHtml($);
+      return minified;
     } catch (err) {
       throw err;
     }
