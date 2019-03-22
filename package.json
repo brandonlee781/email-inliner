@@ -20,7 +20,7 @@
     "@types/node": "^9.6.0",
     "@types/winston": "^2.3.8",
     "jest": "^22.4.3",
-    "serverless-offline": "^3.18.0",
+    "serverless-offline": "^4.9.2",
     "serverless-plugin-typescript": "^1.1.5",
     "ts-jest": "^22.4.2",
     "typescript": "^2.7.2"
@@ -31,7 +31,7 @@
     "dotenv": "^5.0.1",
     "html-minifier": "^3.5.12",
     "juice": "^4.2.3",
-    "serverless": "^1.26.1",
+    "serverless": "^1.39.1",
     "winston": "^2.4.1"
   }
 }
