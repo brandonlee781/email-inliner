@@ -19,7 +19,7 @@ service: email-inliner
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
 
 plugins: 
   - serverless-plugin-typescript
